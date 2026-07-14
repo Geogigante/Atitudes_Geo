@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AtitudesGeo</title>
+
+  <!-- Biblioteca XLSX -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+  <!-- CSS externo -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="app">
+
+    <!-- HERO -->
+    <section class="hero">
+      <h1>Atitudes<span>Geo</span></h1>
+      <p>
+        Conversor de atitudes geológicas entre <strong>Dip/Dip Direction</strong>,
+        <strong>Quadrante</strong>, <strong>Azimute</strong> e
+        <strong>Regra da Mão Direita (RHR)</strong>.
+      </p>
+      <p class="privacy-note">
+        🔒 Seus dados não saem do seu computador: todo o processamento
+        ocorre localmente, no navegador.<br>
+        Nada é enviado ou armazenado.
+      </p>
+    </section>
+
+    <!-- PARTE 1 -->
+    <h2 class="section-title">
+      ⚙️ Parte 1 — Conversão de dados
+    </h2>
+
+    <!-- ETAPA 1 -->
+    <section class="card">
+      <div class="card-head">
+        <div class="title-group">
+          <div class="step">01</div>
+          <div>
+            <h2>Sistema de notação</h2>
+            <p>Escolha o formato de entrada e o formato de saída.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="grid grid-2">
+          <div class="field">
+            <label for="sys-from">Sistema de origem</label>
+            <select class="select" id="sys-from">
+              <option value="dip_dir">Dip/Dip Direction</option>
+              <option value="quadrant">Quadrante</option>
+              <option value="azimuth">Azimute</option>
+              <option value="rhr">Regra da Mão Direita (RHR)</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="sys-to">Sistema de destino</label>
+            <select class="select" id="sys-to">
+              <option value="dip_dir">Dip/Dip Direction</option>
+              <option value="quadrant">Quadrante</option>
+              <option value="azimuth">Azimute</option>
+              <option value="rhr">Regra da Mão Direita (RHR)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="concept-note">
+          💡 Nesta aplicação, <strong>Azimute</strong> e <strong>RHR</strong> usam a mesma base numérica
+          para strike/dip. A diferença entre eles é principalmente conceitual e de convenção de representação.
+        </div>
+      </div>
+    </section>
+
+    <!-- ETAPA 2 -->
+    <section class="card">
+      <div class="card-head">
+        <div class="title-group">
+          <div class="step">02</div>
+          <div>
+            <h2>Importação da planilha</h2>
+            <p>Carregue o arquivo Excel para leitura e conversão.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="upload-layout">
+          <div class="info-panel">
+            <h3>Como preparar a planilha</h3>
+            <p>
+              A planilha deve conter duas colunas com os valores do sistema de origem.
+              Após a importação, se necessário, as colunas podem ser ajustadas manualmente abaixo.
+            </p>
+
+            <div class="info-list">
+              <div class="info-item">
+                <span class="info-dot"></span>
+                <span><strong>Dip/Dip Direction:</strong> mergulho + direção do mergulho (ex.: 45/120)</span>
+              </div>
+              <div class="info-item">
+                <span class="info-dot"></span>
+                <span><strong>RHR / Azimute:</strong> direção (strike) + mergulho (ex.: 030/45)</span>
+              </div>
+              <div class="info-item">
+                <span class="info-dot"></span>
+                <span><strong>Quadrante:</strong> direção (strike) (ex.: <span class="mono">N30E</span>) + mergulho (ex.: <span class="mono">45SE</span>)</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="upload-zone" id="upload-zone">
+              <input type="file" id="file-input" accept=".xlsx,.xls">
+              <div class="upload-stack">
+                <div class="upload-icon">📂</div>
+                <div class="upload-main">Clique ou arraste o arquivo aqui</div>
+                <div class="upload-sub">Formatos aceitos: .xlsx e .xls</div>
+                <div class="file-badge" id="file-badge"></div>
+              </div>
+            </div>
+            <div class="status" id="status-file"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ETAPA 3 -->
+    <section class="card hidden" id="mapping-section">
+      <div class="card-head">
+        <div class="title-group">
+          <div class="step">03</div>
+          <div>
+            <h2>Mapeamento das colunas</h2>
+            <p>Ajuste as colunas da direção/strike e do dip, além da linha inicial dos dados.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="grid grid-3">
+          <div class="field">
+            <label id="col-dir-label" for="col-dir">Coluna - Dip Direction ou Strike</label>
+            <select class="select" id="col-dir"></select>
+          </div>
+
+          <div class="field">
+            <label id="col-dip-label" for="col-dip">Coluna - Dip</label>
+            <select class="select" id="col-dip"></select>
+          </div>
+
+          <div class="field">
+            <label for="row-start">Linha inicial dos dados</label>
+            <select class="select" id="row-start">
+              <option value="1">Linha 1</option>
+              <option value="2" selected>Linha 2</option>
+              <option value="3">Linha 3</option>
+              <option value="4">Linha 4</option>
+            </select>
+          </div>
+        </div>
+        <div class="status" id="status-map"></div>
+      </div>
+    </section>
+
+    <!-- ETAPA 4 -->
+    <section class="card hidden" id="results-section">
+      <div class="card-head">
+        <div class="title-group">
+          <div class="step">04</div>
+          <div>
+            <h2>Painel de resultados</h2>
+            <p>Visualização dos dados originais, convertidos e dos possíveis erros.</p>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" id="btn-export" disabled>
+          ⬇ Exportar XLSX
+        </button>
+      </div>
+
+      <div class="card-body">
+        <div class="toolbar">
+          <div class="summary">
+            <div class="summary-card">
+              <div class="k">Registros</div>
+              <p class="v" id="sum-total">0</p>
+            </div>
+
+            <div class="summary-card">
+              <div class="k">Válidos</div>
+              <p class="v" id="sum-valid">0</p>
+            </div>
+
+            <div class="summary-card">
+              <div class="k">Erros</div>
+              <p class="v" id="sum-errors">0</p>
+            </div>
+          </div>
+
+          <div class="pill" id="result-pill">Entrada → Saída</div>
+        </div>
+
+        <div class="results-box">
+          <div class="results-head">
+            <div>#</div>
+            <div>Entrada</div>
+            <div>Saída</div>
+            <div>Status</div>
+            <div>Detalhe</div>
+          </div>
+
+          <div class="results-scroll" id="results-scroll">
+            <div id="results-list"></div>
+          </div>
+        </div>
+
+        <div class="footer-note">
+          O arquivo exportado mantém as colunas originais e adiciona as duas colunas correspondentes ao sistema de destino.
+        </div>
+
+        <div class="status" id="status-export"></div>
+      </div>
+    </section>
+
+    <!-- PARTE 2 -->
+    <h2 class="section-title">
+      📘 Parte 2 — Entendimento conceitual
+    </h2>
+
+    <!-- BLOCO EDUCACIONAL -->
+    <section class="card card-educacional">
+      <div class="card-head">
+        <div class="title-group">
+          <div>
+            <h2>Fundamentos das atitudes geológicas</h2>
+            <p>Representação para strike e dip.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <h3>Como descrever um plano geológico?</h3>
+        <p>
+          A atitude geológica responde
+          <strong>"como um plano está inclinado no espaço?"</strong>
+        </p>
+
+        <h3>👁️ Visualizando em 3D</h3>
+
+        <div class="geo-demo-wrap">
+          <div class="geo-svg-wrap">
+            <svg class="geo-svg"
+                 viewBox="0 0 600 450"
+                 xmlns="http://www.w3.org/2000/svg"
+                 aria-label="Plano geológico inclinado">
+
+              <defs>
+                <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="0" dy="6" stdDeviation="6" flood-opacity="0.18"/>
+                </filter>
+              </defs>
+
+              <polygon
+                points="360,430 190,230 390,70 560,270"
+                fill="#63a874"
+                stroke="#2f7440"
+                stroke-width="3"
+                filter="url(#shadow)"/>
+
+              <polygon
+                points="360,430 40,310 30,170 190,230"
+                fill="#dfe8db"
+                stroke="#bcc9b8"
+                stroke-width="2"/>
+
+              <polygon
+                points="190,230 30,170 230,10 390,70"
+                fill="#cfd8ca"
+                stroke="#bcc9b8"
+                stroke-width="2"/>
+
+              <line x1="360" y1="430" x2="190" y2="230" stroke="#aab8a6" stroke-width="2"/>
+              <line x1="190" y1="230" x2="390" y2="70" stroke="#aab8a6" stroke-width="2"/>
+              <line x1="390" y1="70" x2="560" y2="270" stroke="#aab8a6" stroke-width="2"/>
+              <line x1="560" y1="270" x2="360" y2="430" stroke="#aab8a6" stroke-width="2"/>
+
+              <line
+                x1="260"
+                y1="292"
+                x2="414"
+                y2="168"
+                stroke="#ffffff"
+                stroke-width="5"
+                stroke-linecap="round"/>
+
+              <text
+                x="298"
+                y="292"
+                fill="#ffffff"
+                font-family="IBM Plex Mono"
+                font-size="14"
+                font-weight="700">
+                strike
+              </text>
+
+              <line
+                x1="326"
+                y1="161"
+                x2="391"
+                y2="237"
+                stroke="#ffffff"
+                stroke-width="5"
+                stroke-linecap="round"/>
+
+              <polygon
+                points="391,237 377,232 383,219"
+                fill="#ffffff"/>
+
+              <text
+                x="402"
+                y="232"
+                fill="#ffffff"
+                font-family="IBM Plex Mono"
+                font-size="14"
+                font-weight="700">
+                dip
+              </text>
+            </svg>
+
+            <div class="geo-caption">
+              Bloco em perspectiva com representação do plano geológico.
+            </div>
+          </div>
+
+          <div class="geo-demo-notes">
+            <p><strong>O plano verde</strong> representa uma superfície geológica inclinada no espaço.</p>
+            <p><strong>A linha branca sobre o plano</strong> representa o <strong>strike</strong>.</p>
+            <p><strong>A seta branca</strong> representa o <strong>dip</strong>.</p>
+          </div>
+        </div>
+
+        <h3>📍 Passo a passo</h3>
+        <ol>
+          <li>Encontre a linha horizontal no plano → <strong>strike</strong></li>
+          <li>Meça o ângulo em relação ao Norte → <strong>strike</strong></li>
+          <li>Observe para onde o plano desce → <strong>direção do mergulho</strong></li>
+          <li>Meça o ângulo da descida máxima → <strong>dip</strong></li>
+        </ol>
+
+        <div class="rule-box">
+          💡 <strong>Regra mental:</strong><br>
+          Strike é a linha horizontal do plano → dip é a descida máxima, perpendicular ao strike dentro do plano.
+        </div>
+
+        <h3>🔄 Diferentes representações</h3>
+        <ul>
+          <li>Quadrante: <span class="mono">N30E/45SE</span></li>
+          <li>Azimute: <span class="mono">030/45</span></li>
+          <li>Dip/Dip Direction: <span class="mono">45/120</span></li>
+          <li>RHR: <span class="mono">030/45</span></li>
+        </ul>
+
+        <h3>🧠 Base teórica da conversão selecionada</h3>
+        <div class="theory-box">
+          <div id="conversion-theory"></div>
+        </div>
+
+        <p>👉 O plano não muda — apenas a forma de representar.</p>
+
+        <h3>✅ Resumo</h3>
+        <ul>
+          <li>Atitude = direção + mergulho</li>
+          <li>Existem vários formatos de notação para o mesmo plano</li>
+          <li>Seu conversor faz essa transformação automaticamente</li>
+        </ul>
+      </div>
+    </section>
+  </div>
+
+  <!-- JS externo -->
+  <script src="js/logica.js"></script>
+  <script src="js/interface.js"></script>
+</body>
+</html>
