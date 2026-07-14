@@ -1,0 +1,26 @@
+{
+  "name": "AtitudesGeo",
+  "short_name": "AtitudesGeo",
+  "description": "Conversor de atitudes geológicas entre Dip/Dip Direction, Quadrante, Azimute e Regra da Mão Direita (RHR).",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#163A1F",
+  "theme_color": "#163A1F",
+
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

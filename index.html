@@ -3,6 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <meta name="theme-color" content="#163A1F" />
+
+  manifest.json
+
+  <link rel="apple-touch-icon"
+        href="icons/icon--capable"
+        content="yes">
+
+  <meta name="apple-mobile-web-app-status-bar-style"
+        content="default">
+
+  <meta name="apple-mobile-web-app-title"
+        content="AtitudesGeo">
+
   <title>AtitudesGeo</title>
 
   <!-- Biblioteca XLSX -->
@@ -385,5 +400,14 @@
   <!-- JS externo -->
   <script src="js/logica.js"></script>
   <script src="js/interface.js"></script>
+
+  <script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./sw.js");
+    });
+  }
+  </script>
+
 </body>
 </html>
