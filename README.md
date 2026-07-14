@@ -53,20 +53,15 @@ A leitura e a exportação das planilhas são realizadas utilizando a biblioteca
 
 ## 🔒 Privacidade dos Dados
 
-Esta aplicação executa **inteiramente no navegador do usuário**.
+O processamento desta aplicação ocorre integralmente no navegador do usuário.
+As planilhas importadas são lidas e convertidas localmente, na memória do próprio navegador: **a aplicação não envia os dados inseridos ou importados a nenhum servidor**, não os armazena e não utiliza cookies ou mecanismos de rastreamento próprios.
 
-As planilhas importadas são lidas e processadas localmente na própria máquina, sem envio de informações para servidores externos.
+Não há backend nem banco de dados associados a esta aplicação. O código-fonte é aberto e pode ser auditado neste repositório.
 
-A aplicação:
+**Observação:** a página utiliza a biblioteca SheetJS, carregada a partir de um CDN público (cdnjs.cloudflare.com) no momento em que a página é aberta.
+Essa requisição baixa apenas o arquivo da biblioteca — **os dados das suas planilhas não trafegam nessa conexão**. Nenhuma outra conexão externa é realizada durante o uso.
 
-- não possui backend
-- não utiliza banco de dados
-- não coleta informações do usuário
-- não compartilha arquivos ou registros de uso
-
-Após o carregamento inicial da página, a ferramenta pode ser utilizada inclusive de forma **offline**.
-
-Essa abordagem torna a aplicação adequada para utilização com dados confidenciais de projetos, tais como informações de sondagens, mapeamentos geológicos, levantamentos estruturais e bases de dados geotécnicas.
+Essas características tornam a ferramenta adequada ao uso com dados sensíveis de projetos, como atitudes estruturais de sondagens e mapeamentos de campo, observadas as políticas de segurança da informação da sua organização.
 
 ---
 
